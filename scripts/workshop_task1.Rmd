@@ -1,0 +1,78 @@
+---
+title: "workshop task 1"
+author: "Chelsea Dack"
+date: "04/11/2020"
+output: html_document
+---
+
+<!-- set default code chunk options -->
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.retina = 3)
+```
+
+<!-- insert code chunk for package loading -->
+```{r packages}
+library(tidyverse)
+```
+
+## Introduction
+The mass of male & female chaffinches was measured.
+
+## Methods
+Male & female chaffinches were weighed & their mass recorded.
+
+## Results
+Raw data -
+```{r import data}
+filechaff <- "../data-raw/chaff.txt"
+chaff <- read_table2(filechaff)
+chaff
+```
+Tidied data -
+```{r tidy data}
+
+# convert to long form
+chaff <- chaff %>% 
+  pivot_longer(names_to = "sex", 
+               values_to = "mass",
+               cols = c(males, females))
+chaff
+```
+Sum of squares for each sex
+```{r fucntion SS(x)}
+# create function for sum_sq
+sum_sq <- function(df, measure, group) {
+  df %>% group_by({{ group }}) %>% 
+    summarise(ss = sum(({{measure}} - mean({{measure}}))^2))
+}
+
+# find sum_sq for each group
+sum_sq(chaff, mass, sex)
+```
+data summary -
+```{r summarise}
+
+# summarize masses by sex
+chaff_summary <- chaff %>% 
+  group_by(sex) %>% 
+  summarise(mean_index = mean(mass),
+  n = length(mass),
+  sd = sd(mass),
+  se = sd/sqrt(n))
+chaff_summary
+
+# create function to summarise
+data_summary <- function(df, measure, group) {
+  df %>% group_by({{ group }}) %>% 
+    summarise(mean_index = mean(measure),
+    n = length(measure),
+   sd = sd(measure),
+   se = sd/sqrt(n))
+}
+
+```
+
+# Discussion
